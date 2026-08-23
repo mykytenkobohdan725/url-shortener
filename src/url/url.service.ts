@@ -2,6 +2,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateUrlDto } from './dto/create-url.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -20,7 +21,30 @@ export class UrlService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
-  getOriginalUrl(shortCode: string) {}
+  async getOriginalUrl(shortCode: string) {
+    const cacheKey = `url:${shortCode}`;
+    const cachedUrl = await this.cacheManager.get<string>(cacheKey);
+
+    console.log('cachedUrl', cachedUrl);
+
+    if (cachedUrl) {
+      return cachedUrl;
+    }
+
+    const url = await this.urlModel
+      .findOne({
+        shortCode,
+      })
+      .exec();
+
+    if (!url) {
+      throw new NotFoundException();
+    }
+
+    await this.cacheManager.set(cacheKey, url?.originalUrl);
+
+    return url?.originalUrl;
+  }
 
   async createUrl({ originalUrl, expiresAt }: CreateUrlDto, projectId: string) {
     let shortCode: string = '';
