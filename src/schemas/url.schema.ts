@@ -5,13 +5,6 @@ export type UrlDocument = HydratedDocument<Url>;
 
 @Schema({
   timestamps: true,
-  toJSON: {
-    virtuals: true,
-    transform: (doc, ret) => {
-      delete ret._id;
-      delete ret.__v;
-    },
-  },
 })
 export class Url {
   @Prop({ required: true, index: true })
