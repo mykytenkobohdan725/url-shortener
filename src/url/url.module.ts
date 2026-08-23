@@ -3,9 +3,13 @@ import { UrlService } from './url.service';
 import { UrlController } from './url.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Url, UrlSchema } from '../schemas/url.schema';
+import { ProjectsModule } from '../projects/projects.module';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: Url.name, schema: UrlSchema }])],
+  imports: [
+    MongooseModule.forFeature([{ name: Url.name, schema: UrlSchema }]),
+    ProjectsModule,
+  ],
   controllers: [UrlController],
   providers: [UrlService],
 })

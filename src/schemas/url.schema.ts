@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
+import { Project } from './project.schema';
 
 export type UrlDocument = HydratedDocument<Url>;
 
@@ -7,8 +8,13 @@ export type UrlDocument = HydratedDocument<Url>;
   timestamps: true,
 })
 export class Url {
-  @Prop({ required: true, index: true })
-  projectId: string;
+  @Prop({
+    required: true,
+    index: true,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Project.name,
+  })
+  project: mongoose.Types.ObjectId;
 
   @Prop({ required: true, unique: true })
   originalUrl: string;

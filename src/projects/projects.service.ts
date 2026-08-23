@@ -1,14 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Project } from '../schemas/project.schema';
 import { Model } from 'mongoose';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 
 @Injectable()
 export class ProjectsService {
   constructor(
     @InjectModel(Project.name) private readonly projectModel: Model<Project>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   findAll(): Promise<Project[]> {
@@ -35,5 +37,39 @@ export class ProjectsService {
     return this.projectModel.findByIdAndDelete({ _id: id }).exec();
   }
 
-  isValidProject() {}
+  async getProjectIdByApiKey(
+    apiKey: string | undefined,
+  ): Promise<string | null> {
+    if (!apiKey) {
+      return null;
+    }
+
+    try {
+      const cacheKey = `api-key:${apiKey}`;
+      const cachedProjectId = await this.cacheManager.get<string>(cacheKey);
+
+      if (cachedProjectId) {
+        return cachedProjectId;
+      }
+
+      const project = await this.projectModel
+        .findOne({
+          apiKey,
+          isActive: true,
+        })
+        .select({ _id: 1 })
+        .exec();
+
+      if (!project) {
+        return null;
+      }
+
+      const projectId = project._id.toString();
+      await this.cacheManager.set(cacheKey, projectId);
+      return projectId;
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  }
 }
