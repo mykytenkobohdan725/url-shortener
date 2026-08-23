@@ -17,8 +17,11 @@ export class UrlController {
   @Get(':shortCode')
   @UseApiKey()
   @Redirect()
-  async getUrl(@Param('shortCode') shortCode: string) {
-    const url = await this.urlService.getOriginalUrl(shortCode);
+  async getUrl(
+    @Param('shortCode') shortCode: string,
+    @ProjectId() projectId: string,
+  ) {
+    const url = await this.urlService.getOriginalUrl(shortCode, projectId);
 
     return { url };
   }

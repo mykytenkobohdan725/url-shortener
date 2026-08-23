@@ -21,11 +21,9 @@ export class UrlService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
-  async getOriginalUrl(shortCode: string) {
-    const cacheKey = `url:${shortCode}`;
+  async getOriginalUrl(shortCode: string, projectId: string) {
+    const cacheKey = `url:${projectId}:${shortCode}`;
     const cachedUrl = await this.cacheManager.get<string>(cacheKey);
-
-    console.log('cachedUrl', cachedUrl);
 
     if (cachedUrl) {
       return cachedUrl;
@@ -34,6 +32,7 @@ export class UrlService {
     const url = await this.urlModel
       .findOne({
         shortCode,
+        project: projectId,
       })
       .exec();
 
