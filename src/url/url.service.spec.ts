@@ -68,4 +68,18 @@ describe('UrlService', () => {
     expect(result.shortCode).toBeDefined();
     expect(mockUrlModel.create).toHaveBeenCalled();
   });
+
+  it('should get a original url', async () => {
+    const mockShortCode = 'a8Xk9P';
+    const mockOriginalUrl = 'https://google.com';
+    const projectId = '507f1f77bcf86cd799439011';
+
+    mockCacheManager.get.mockResolvedValue(mockOriginalUrl);
+
+    const result = await service.getOriginalUrl(mockShortCode, projectId);
+
+    expect(result).toBe(mockOriginalUrl);
+    expect(mockCacheManager.get).toHaveBeenCalledWith(`url:${projectId}:${mockShortCode}`);
+    expect(mockUrlModel.findOne).not.toHaveBeenCalled();
+  });
 });
