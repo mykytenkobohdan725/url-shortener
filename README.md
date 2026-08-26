@@ -39,6 +39,6 @@ Create a `.env` file in the root directory:
 
 ```env
 PORT=3000
-MONGODB_URI=mongodb+srv://<user>:<password>@cluster0.l2hszdo.mongodb.net/url-shortener?appName=Cluster0
+MONGODB_URI=mongodb+srv://<user>:<password>
 REDIS_HOST=localhost
 REDIS_PORT=6379
