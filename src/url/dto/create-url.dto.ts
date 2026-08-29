@@ -2,13 +2,13 @@ import {
   IsDateString,
   IsNotEmpty,
   IsOptional,
-  IsString,
+  IsUrl,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class CreateUrlDto {
   @IsNotEmpty()
-  @IsString()
+  @IsUrl()
   originalUrl: string;
 
   @IsOptional()

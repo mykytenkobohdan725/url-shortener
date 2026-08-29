@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { ProjectsService } from '../projects/projects.service';
 
@@ -9,10 +14,21 @@ export class ApiKeyGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: Request = context.switchToHttp().getRequest();
     const apiKey = request.get('x-api-key');
+
+    if (!apiKey) {
+      console.log(
+        `Auth failed: Missing x-api-key header from IP: ${request.ip}`,
+      );
+      throw new UnauthorizedException('Unauthorized');
+    }
+
     const projectId = await this.projectsService.getProjectIdByApiKey(apiKey);
 
     if (!projectId) {
-      return false;
+      console.log(
+        `Auth failed: Invalid API key "${apiKey}" from IP: ${request.ip}`,
+      );
+      throw new UnauthorizedException('Unauthorized');
     }
 
     request.projectId = projectId;
